@@ -28,7 +28,7 @@ steps:
   # 2. Install dependencies
   - script: |
       cd 01_basicreact
-      npm ci
+      npm install
       npm install -D @testing-library/jest-dom
     displayName: 'Install dependencies'
   
