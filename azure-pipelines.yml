@@ -1,0 +1,99 @@
+# Maven
+# Build your Java project and run tests with Apache Maven.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/java
+
+trigger:
+  branches:
+    include:
+      - main
+
+pr:
+  branches:
+    include:
+    - main
+    - '*'
+
+pool:
+  name: 'MySelfHostedpool'
+  demands: []
+
+steps:
+  # 1. Install Node.js
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '18.x'
+    displayName: 'Use Node.js'
+  
+  # 2. Install dependencies
+  - script: npm install
+    displayName: 'Install dependencies'
+  
+  # 3. Run tests with coverage (needed for Sonar)
+  - script: npm test -- --coverage
+    displayName: 'Run tests with coverage'
+
+  # Prepare SonarCloud Analysis (CLI mode, before build)
+  # - task: SonarCloudPrepare@3
+  #   inputs:
+  #     SonarCloud: 'SonarCloudServiceConnection'   # <-- Service connection to your SonarCloud
+  #     organization: 'devanshi-rangras'
+  #     scannerMode: 'CLI'
+  #     configMode: 'manual'
+  #     cliProjectKey: 'Devanshi-Rangras_sample-job-portal'
+  #     cliProjectName: 'JobPortal'
+  #     cliSources: 'backend,frontend'
+  #     extraProperties: |
+  #       sonar.java.binaries=backend/target/classes
+  #       sonar.junit.reportPaths=backend/target/surefire-reports
+  #       sonar.coverage.jacoco.xmlReportPaths=backend/target/site/jacoco/jacoco.xml
+  #       sonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info
+
+  #       # Exclude node_modules and build outputs
+  #       sonar.exclusions=**/node_modules/**,**/dist/**,**/build/**
+  #   displayName: "Prepare SonarCloud Analysis (CLI Pre-Build)"
+  
+  # Prepare SonarCloud Analysis (CLI mode, before build)
+  - task: SonarCloudPrepare@3
+    inputs:
+      SonarCloud: 'SonarCloudServiceConnection'
+      organization: 'devanshi-rangras'
+      scannerMode: 'CLI'
+      configMode: 'manual'
+      cliProjectKey: 'Devanshi-Rangras_React_js_sample_project'
+      cliProjectName: 'React_js_sample_project'
+      # Remove cliSources from here
+      extraProperties: |
+        sonar.projectBaseDir=./
+        sonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info
+  
+  # 5. Run build (so React build artifacts exist)
+  - script: npm run build
+    displayName: 'Build React App'
+      
+  # Check coverage file
+  - script: |
+      if exist frontend\coverage (
+        echo "Listing frontend/coverage folder..."
+        dir frontend\coverage
+
+        if exist frontend\coverage\lcov.info (
+          echo "Showing first 20 lines of lcov.info..."
+          powershell -Command "Get-Content frontend/coverage/lcov.info -TotalCount 20"
+        ) else (
+          echo "lcov.info not found!"
+        )
+      ) else (
+        echo "frontend\coverage folder not found!"
+      )
+    displayName: "Check Coverage File"
+  
+  # Run SonarCloud Analysis
+  - task: SonarCloudAnalyze@3
+    displayName: "Run SonarCloud Analysis"
+  
+  # Publish SonarCloud Quality Gate
+  - task: SonarCloudPublish@3
+    inputs:
+      pollingTimeoutSec: '300'
+    displayName: "Publish SonarCloud Quality Gate"
