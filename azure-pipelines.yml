@@ -28,14 +28,14 @@ steps:
   # 2. Install dependencies
   - script: |
       cd 01_basicreact
-      npm install
+      npm ci
       npm install -D @testing-library/jest-dom
     displayName: 'Install dependencies'
   
   # 3. Run tests with coverage (needed for Sonar)
   - script: |
       cd 01_basicreact
-      npm test
+      npx vitest run --coverage
     displayName: 'Run tests with coverage'
 
   # Prepare SonarCloud Analysis (CLI mode, before build)
