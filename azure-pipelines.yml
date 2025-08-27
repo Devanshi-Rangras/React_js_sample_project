@@ -34,7 +34,7 @@ steps:
   # 3. Run tests with coverage (needed for Sonar)
   - script: |
       cd 01_basicreact
-      npm test -- --coverage
+      npm test
     displayName: 'Run tests with coverage'
 
   # Prepare SonarCloud Analysis (CLI mode, before build)
