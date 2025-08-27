@@ -26,11 +26,15 @@ steps:
     displayName: 'Use Node.js'
   
   # 2. Install dependencies
-  - script: npm install
+  - script: |
+      cd 01_basicreact
+      npm install
     displayName: 'Install dependencies'
   
   # 3. Run tests with coverage (needed for Sonar)
-  - script: npm test -- --coverage
+  - script: |
+      cd 01_basicreact
+      npm test -- --coverage
     displayName: 'Run tests with coverage'
 
   # Prepare SonarCloud Analysis (CLI mode, before build)
@@ -62,13 +66,15 @@ steps:
       configMode: 'manual'
       cliProjectKey: 'Devanshi-Rangras_React_js_sample_project'
       cliProjectName: 'React_js_sample_project'
+      cliSources: '01_basicreact/src'
       # Remove cliSources from here
       extraProperties: |
-        sonar.projectBaseDir=./
-        sonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info
+        sonar.javascript.lcov.reportPaths=01_basicreact/coverage/lcov.info
   
   # 5. Run build (so React build artifacts exist)
-  - script: npm run build
+  - script: |
+      cd 01_basicreact
+      npm run build
     displayName: 'Build React App'
       
   # Check coverage file
