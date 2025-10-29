@@ -30,7 +30,7 @@ steps:
       cd 01_basicreact
       npm install
       npm install -D @testing-library/jest-dom
-    displayName: 'Install dependencies'
+    displayName: 'Install npm dependencies'
   
   # 3. Run tests with coverage (needed for Sonar)
   - script: |
